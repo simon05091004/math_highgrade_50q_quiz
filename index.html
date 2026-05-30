@@ -446,7 +446,7 @@ function getLocalRecs(cls){const a=JSON.parse(localStorage.getItem("mathQuiz50")
 
 function renderTeacher(recs,cls){
   const tl=document.getElementById("tlist");
-  if(!recs.length){tl.innerHTML='<div class="empty">📭 尚無記錄'+(cls?" ("+cls+")")+"</div>";}
+  if(!recs.length){tl.innerHTML='<div class="empty">📭 尚無記錄'+(cls?" ("+cls+")":"")+"</div>";}
   else{
     const avg=(recs.reduce((s,r)=>s+r.score,0)/recs.length).toFixed(1),hi=recs.filter(r=>r.score>=80).length;
     tl.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px"><div style="background:#f4f6f9;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#1d4ed8">'+recs.length+'</div><div style="font-size:10.5px;color:#8a96a6">作答人數</div></div><div style="background:#f4f6f9;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#1d4ed8">'+avg+'</div><div style="font-size:10.5px;color:#8a96a6">平均分數</div></div><div style="background:#f4f6f9;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#178a56">'+hi+'</div><div style="font-size:10.5px;color:#8a96a6">80分以上</div></div></div>'+
@@ -458,7 +458,7 @@ function renderTeacher(recs,cls){
   const tw=document.getElementById("tweak");
   if(!recs.length){tw.innerHTML='<div class="empty">暫無資料</div>';}
   else{
-    tw.innerHTML='<div style="font-size:12px;color:var(--texth);margin-bottom:10px">共 '+recs.length+"筆"+(cls?" ("+cls+")")+"</div>"+
+    tw.innerHTML='<div style="font-size:12px;color:var(--texth);margin-bottom:10px">共 '+recs.length+"筆"+(cls?" ("+cls+")":"")+"</div>"+
     cats.map(cat=>{
       const total=recs.length*QS.filter(q=>q.cat===cat).length;
       const correct=recs.reduce((s,r)=>r.catScores?s+(r.catScores[cat]||0):s,0);
