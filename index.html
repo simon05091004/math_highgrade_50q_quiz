@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>國小高年級數學補救教學測驗｜50題</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-app-compat.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.12.2/firebase-firestore-compat.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --green:#178a56;--greenl:#e7f6ef;
+  --red:#c82828;--redl:#fdeaea;
+  --amber:#b87010;--amberl:#fdf3e0;
+  --gray:#4e5a6a;--grayl:#f4f6f9;--graym:#dde2ea;
+  --text:#1a2130;--texts:#4e5a6a;--texth:#8a96a6;
+  --white:#fff;--r:14px;--rs:10px;--rx:22px;
+  --sh:0 3px 16px rgba(0,0,0,.09);
+}
+html,body{min-height:100%;font-family:"Noto Sans TC",sans-serif;background:#f0f4ff;color:var(--text);font-size:16px;line-height:1.65;overflow-x:hidden}
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.active{display:flex}
+.bar{display:flex;align-items:center;gap:12px;padding:13px 18px;box-shadow:0 2px 12px rgba(0,0,0,.2);position:sticky;top:0;z-index:50}
+.bar .icon{width:38px;height:38px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.bar .ttl{color:#fff;font-size:15px;font-weight:700}
+.bar .sub{color:rgba(255,255,255,.7);font-size:11.5px;margin-top:1px}
+.bar .flex1{flex:1}
+.back-btn{background:none;border:none;color:rgba(255,255,255,.85);font-size:13px;font-family:"Noto Sans TC",sans-serif;cursor:pointer;padding:0}
+.bar-tch{background:linear-gradient(135deg,#052e16,#166534)!important}
+#sw .body{flex:1;padding:18px 16px 30px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.w-card{background:var(--white);border-radius:var(--r);padding:22px 20px;width:100%;max-width:600px;box-shadow:var(--sh)}
+.w-card h2{font-size:18px;font-weight:900;margin-bottom:4px}
+.w-card .desc{font-size:13.5px;color:var(--texts);margin-bottom:14px;line-height:1.75}
+.score-bar{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:14px}
+.sbt{padding:9px;border-radius:var(--rs);text-align:center;font-size:12px;font-weight:700}
+.sub-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+.spill{padding:5px 11px;border-radius:var(--rx);font-size:12px;font-weight:600}
+label.fl{display:block;font-size:12.5px;font-weight:700;color:var(--texts);margin-bottom:5px}
+.inp{width:100%;padding:13px 14px;border:1.5px solid var(--graym);border-radius:var(--rs);font-size:16px;font-family:"Noto Sans TC",sans-serif;color:var(--text);background:var(--white);outline:none;transition:border-color .2s;margin-bottom:12px}
+.inp:focus{border-color:#1d4ed8}
+.inp-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn-go{width:100%;padding:15px;background:linear-gradient(135deg,#1e3a8a,#1d4ed8);color:#fff;border:none;border-radius:var(--rs);font-size:16px;font-weight:900;font-family:"Noto Sans TC",sans-serif;cursor:pointer;letter-spacing:.5px}
+.btn-go:active{opacity:.87}
+.teacher-link{background:none;border:none;color:var(--texth);font-size:12px;cursor:pointer;font-family:"Noto Sans TC",sans-serif;text-decoration:underline;margin-top:6px;display:block;text-align:center}
+.qr-card{background:var(--white);border-radius:var(--r);padding:16px 20px;width:100%;max-width:600px;box-shadow:var(--sh);text-align:center}
+.qr-card p{font-size:13px;color:var(--texts);margin-bottom:10px;font-weight:500}
+.qr-card small{display:block;font-size:10px;color:var(--texth);margin-top:8px;word-break:break-all}
+.prog-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.prog-row .qn{font-size:13px;font-weight:700;color:#fff}
+.prog-row .un{font-size:11px;color:rgba(255,255,255,.75);padding:2px 9px;background:rgba(255,255,255,.18);border-radius:20px;max-width:160px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.pbar{height:6px;background:rgba(255,255,255,.25);border-radius:3px;overflow:hidden}
+.pfill{height:6px;background:#fff;border-radius:3px;transition:width .3s ease}
+#sq .body{flex:1;padding:12px 14px 20px;display:flex;flex-direction:column;gap:10px;max-width:680px;margin:0 auto;width:100%}
+.q-wrap{background:var(--white);border-radius:var(--r);padding:18px 18px;box-shadow:var(--sh)}
+.cat-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 13px;border-radius:var(--rx);font-size:12px;font-weight:700;margin-bottom:11px}
+.q-body{font-size:17px;font-weight:500;line-height:1.85;color:var(--text);margin-bottom:8px}
+.q-body b{font-weight:900}
+.choices{display:flex;flex-direction:column;gap:8px}
+.ch{display:flex;align-items:center;gap:12px;padding:14px 16px;border:2px solid var(--graym);border-radius:var(--rs);background:var(--white);cursor:pointer;font-size:15px;font-family:"Noto Sans TC",sans-serif;color:var(--text);text-align:left;transition:all .15s;width:100%}
+.ch-lbl{width:28px;height:28px;min-width:28px;border-radius:50%;background:var(--grayl);border:1.5px solid var(--graym);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--texts);transition:all .15s;flex-shrink:0}
+.ch.correct{border-color:var(--green);background:var(--greenl);pointer-events:none}
+.ch.correct .ch-lbl{background:var(--green);color:#fff;border-color:var(--green)}
+.ch.wrong{border-color:var(--red);background:var(--redl);pointer-events:none}
+.ch.wrong .ch-lbl{background:var(--red);color:#fff;border-color:var(--red)}
+.ch.dim{pointer-events:none;opacity:.5}
+.fb{border-radius:var(--rs);padding:12px 15px;font-size:13px;font-weight:500;display:none;align-items:flex-start;gap:10px;line-height:1.75}
+.fb.on{display:flex}
+.fb.ok{background:var(--greenl);color:#136848}
+.fb.no{background:var(--redl);color:#a02020}
+.fb-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.btn-nx{width:100%;padding:14px;background:linear-gradient(135deg,#1e3a8a,#1d4ed8);color:#fff;border:none;border-radius:var(--rs);font-size:15px;font-weight:900;font-family:"Noto Sans TC",sans-serif;cursor:pointer;display:none;letter-spacing:.5px}
+.btn-nx.on{display:block}
+#sr .body{flex:1;padding:13px;max-width:720px;margin:0 auto;width:100%}
+.hero{background:var(--white);border-radius:var(--r);padding:20px 18px;box-shadow:var(--sh);margin-bottom:12px;text-align:center}
+.score-ring{width:108px;height:108px;border-radius:50%;margin:0 auto 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:6px solid;font-weight:700}
+.score-ring .big{font-size:34px;line-height:1}
+.score-ring .sm{font-size:11px;margin-top:2px;opacity:.75}
+.rh{border-color:var(--green);color:var(--green);background:var(--greenl)}
+.rm{border-color:var(--amber);color:var(--amber);background:var(--amberl)}
+.rl{border-color:var(--red);color:var(--red);background:var(--redl)}
+.hero h2{font-size:16px;font-weight:900;margin-bottom:3px}
+.hero p{font-size:13px;color:var(--texts)}
+.stat4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.sb{background:var(--grayl);border-radius:var(--rs);padding:10px;text-align:center}
+.sb .v{font-size:20px;font-weight:900;color:#1d4ed8}
+.sb .l{font-size:10px;color:var(--texth);margin-top:2px}
+.sec-hd{font-size:14px;font-weight:900;margin:12px 0 7px 2px;display:flex;align-items:center;gap:7px}
+.sec-hd::before{content:"";width:4px;height:15px;border-radius:2px;background:#1d4ed8;display:inline-block;flex-shrink:0}
+.cat-card{background:var(--white);border-radius:var(--r);padding:13px 15px;box-shadow:var(--sh);margin-bottom:8px}
+.cat-hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.cat-nm{font-size:13px;font-weight:700;flex:1;display:flex;align-items:center;gap:6px}
+.bar-bg{height:7px;background:var(--graym);border-radius:4px;flex:1;overflow:hidden}
+.bar-fg{height:7px;border-radius:4px;transition:width .6s}
+.cat-sc{font-size:13px;font-weight:700;white-space:nowrap}
+.wrong-list{border-top:1px solid var(--graym);padding-top:8px;margin-top:7px}
+.wi{padding:7px 10px;background:var(--redl);border-radius:8px;margin-bottom:6px;font-size:12.5px}
+.wi .wlbl{font-size:11px;font-weight:700;color:var(--red);margin-bottom:2px}
+.di{background:var(--white);border-radius:var(--r);padding:13px 15px;box-shadow:var(--sh);margin-bottom:7px}
+.di-tags{display:flex;gap:5px;margin-bottom:7px;flex-wrap:wrap}
+.di-tag{padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700}
+.di-q{font-size:14px;margin-bottom:8px;line-height:1.8;font-weight:600}
+.di-ans{font-size:12.5px;display:flex;gap:8px;flex-wrap:wrap;margin-bottom:5px;align-items:center}
+.di-exp{font-size:12px;color:var(--texts);padding-top:6px;border-top:1px solid var(--graym);line-height:1.7}
+.btnrow{display:flex;gap:10px;margin:12px 0 28px}
+.btn2a{flex:1;padding:12px;border:2px solid #1d4ed8;background:var(--white);color:#1d4ed8;border-radius:var(--rs);font-size:13px;font-weight:700;font-family:"Noto Sans TC",sans-serif;cursor:pointer}
+.btn2b{flex:1;padding:12px;background:linear-gradient(135deg,#1e3a8a,#1d4ed8);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:700;font-family:"Noto Sans TC",sans-serif;cursor:pointer}
+.fb-status{font-size:12px;padding:8px 12px;border-radius:var(--rs);margin-bottom:10px}
+.fb-status.ok{background:var(--greenl);color:var(--green)}
+.fb-status.err{background:var(--redl);color:var(--red)}
+#st .body{flex:1;padding:13px;max-width:760px;margin:0 auto;width:100%}
+.tc{background:var(--white);border-radius:var(--r);padding:14px 16px;box-shadow:var(--sh);margin-bottom:11px}
+.tc h3{font-size:14px;font-weight:900;color:#1d4ed8;margin-bottom:11px}
+.tc-filter{display:flex;gap:8px;margin-bottom:10px;flex-wrap:wrap;align-items:center}
+.tc-filter select{padding:7px 10px;border:1.5px solid var(--graym);border-radius:8px;font-size:13px;font-family:"Noto Sans TC",sans-serif;background:var(--white);outline:none}
+.tc-filter button{padding:7px 14px;background:#1d4ed8;color:#fff;border:none;border-radius:8px;font-size:13px;font-family:"Noto Sans TC",sans-serif;cursor:pointer;font-weight:700}
+.sr-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--graym)}
+.sr-row:last-of-type{border-bottom:none}
+.av{width:36px;height:36px;border-radius:50%;background:#dbeafe;color:#1d4ed8;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0}
+.sinfo{flex:1}.sinfo .nm{font-size:13.5px;font-weight:700}.sinfo .mt{font-size:11px;color:var(--texts)}
+.sbadge{padding:4px 10px;border-radius:20px;font-size:12.5px;font-weight:700;white-space:nowrap}
+.empty{text-align:center;padding:24px;color:var(--texth);font-size:13.5px}
+.btn-clr{background:none;border:1.5px solid var(--red);color:var(--red);padding:6px 13px;border-radius:8px;font-size:12px;font-family:"Noto Sans TC",sans-serif;cursor:pointer;margin-top:9px}
+.wb{margin-bottom:12px}
+.wbr{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:3px}
+.wbb{height:8px;background:var(--graym);border-radius:4px;overflow:hidden}
+.wbf{height:8px;border-radius:4px}
+.rmb{padding:11px 13px;background:var(--amberl);border-radius:8px;font-size:12.5px;color:var(--amber);line-height:1.75;margin-bottom:7px}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid var(--graym);border-top-color:#1d4ed8;border-radius:50%;animation:sp .7s linear infinite;vertical-align:middle;margin-right:5px}
+@keyframes sp{to{transform:rotate(360deg)}}
+#slogin .body{flex:1;display:flex;align-items:center;justify-content:center;padding:20px}
+.login-card{background:var(--white);border-radius:var(--r);padding:28px 22px;width:100%;max-width:360px;box-shadow:var(--sh);text-align:center}
+.login-card h2{font-size:18px;font-weight:900;margin-bottom:5px}
+.login-card p{font-size:13px;color:var(--texts);margin-bottom:18px}
+@media print{.bar,.btnrow,.btn-go,.teacher-link,.qr-card{display:none!important}body{background:#fff}}
+@media(max-width:420px){.inp-row,.stat4{grid-template-columns:1fr 1fr}.score-bar{grid-template-columns:1fr 1fr 1fr}}
+</style>
+</head>
+<body>
+<div id="sw" class="screen active">
+  <div class="bar" style="background:linear-gradient(135deg,#1e3a8a,#1d4ed8)">
+    <div class="icon">🔢</div>
+    <div class="flex1"><div class="ttl">國小高年級數學補救教學測驗</div><div class="sub">五六年級數學核心單元｜50題×2分＝100分</div></div>
+  </div>
+  <div class="body">
+    <div class="w-card">
+      <h2>📐 同學，準備好了嗎？</h2>
+      <p class="desc">本測驗共 <b>50 題</b>，涵蓋國小高年級數學九大單元，每題 <b>2 分</b>，滿分 <b>100 分</b>，請認真作答！</p>
+      <div class="score-bar">
+        <div class="sbt" style="background:#ccfbf1;color:#0f766e">因數與倍數<br><b>5題</b></div>
+        <div class="sbt" style="background:#ede9fe;color:#6d28d9">分數加減乘除<br><b>10題</b></div>
+        <div class="sbt" style="background:#dbeafe;color:#1d4ed8">小數運算<br><b>7題</b></div>
+        <div class="sbt" style="background:#fef3c7;color:#b45309">比與比值<br><b>5題</b></div>
+        <div class="sbt" style="background:#dcfce7;color:#166534">面積與周長<br><b>8題</b></div>
+        <div class="sbt" style="background:#fee2e2;color:#b91c1c">體積與表面積<br><b>7題</b></div>
+        <div class="sbt" style="background:#fce7f3;color:#be185d">統計與平均<br><b>4題</b></div>
+        <div class="sbt" style="background:#e0e7ff;color:#4338ca">速率與應用<br><b>4題</b></div>
+      </div>
+      <div class="inp-row">
+        <div><label class="fl">班級</label>
+          <select class="inp" id="icls" style="appearance:none">
+            <option value="">請選擇班級</option>
+            <option>五年一班</option><option>五年二班</option><option>五年三班</option>
+            <option>五年四班</option><option>五年五班</option><option>五年六班</option>
+            <option>六年一班</option><option>六年二班</option><option>六年三班</option>
+            <option>六年四班</option><option>六年五班</option><option>六年六班</option>
+          </select></div>
+        <div><label class="fl">座號</label>
+          <input class="inp" id="iseat" type="number" placeholder="座號" min="1" max="40"></div>
+      </div>
+      <button class="btn-go" onclick="startQuiz()">開始測驗 →</button>
+      <button class="teacher-link" onclick="go('slogin')">教師成績管理 / 補救分析</button>
+    </div>
+    <div class="qr-card">
+      <p>📱 學生掃描 QR Code，可在平板直接作答</p>
+      <div id="qrbox"></div><small id="qrurl"></small>
+    </div>
+  </div>
+</div>
+<div id="sq" class="screen">
+  <div class="bar" id="q-bar" style="background:linear-gradient(135deg,#1e3a8a,#1d4ed8)">
+    <div class="icon" id="q-icon">🔢</div>
+    <div class="flex1">
+      <div class="prog-row"><div class="qn" id="qcnt">1 / 50</div><div class="un" id="q-unit-tag">因數與倍數</div></div>
+      <div class="pbar"><div class="pfill" id="pfill" style="width:2%"></div></div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="q-wrap">
+      <div id="qcat" class="cat-tag"></div>
+      <div id="qtext" class="q-body"></div>
+    </div>
+    <div class="choices" id="choices"></div>
+    <div class="fb" id="fb"><span class="fb-icon" id="fi"></span><div id="ft"></div></div>
+    <button class="btn-nx" id="bnnx" onclick="nextQ()">下一題 →</button>
+  </div>
+</div>
+<div id="sr" class="screen">
+  <div class="bar" style="background:linear-gradient(135deg,#1e3a8a,#1d4ed8)"><div class="icon">📊</div><div class="flex1"><div class="ttl">測驗結果報告</div><div class="sub" id="rname"></div></div></div>
+  <div class="body">
+    <div id="upload-status" style="display:none" class="fb-status ok"></div>
+    <div class="hero">
+      <div class="score-ring" id="sring"><div class="big" id="snum"></div><div class="sm">分</div></div>
+      <h2 id="smsg"></h2><p id="ssub"></p>
+      <div class="stat4">
+        <div class="sb"><div class="v" id="st1"></div><div class="l">答對題數</div></div>
+        <div class="sb"><div class="v" id="st2"></div><div class="l">答錯題數</div></div>
+        <div class="sb"><div class="v" id="st3"></div><div class="l">總得分</div></div>
+        <div class="sb"><div class="v" id="st4"></div><div class="l">得分率</div></div>
+      </div>
+    </div>
+    <div class="sec-hd">各單元表現</div><div id="catrpt"></div>
+    <div class="sec-hd">錯誤題目詳解</div><div id="wrongdet"></div>
+    <div class="btnrow">
+      <button class="btn2a" onclick="window.print()">🖨 列印報告</button>
+      <button class="btn2b" onclick="resetAll()">重新作答</button>
+    </div>
+  </div>
+</div>
+<div id="slogin" class="screen">
+  <div class="bar bar-tch"><div class="icon">🔐</div>
+    <div class="flex1" style="display:flex;align-items:center;justify-content:space-between">
+      <div class="ttl">教師登入</div><button class="back-btn" onclick="go('sw')">← 返回</button>
+    </div>
+  </div>
+  <div class="body"><div class="login-card">
+    <h2>👩‍🏫 教師專區</h2>
+    <p>請輸入密碼查看全班成績及補救建議</p>
+    <input class="inp" id="t-pwd" type="password" placeholder="請輸入密碼" onkeydown="if(event.key==='Enter')teacherLogin()">
+    <button class="btn-go" onclick="teacherLogin()">進入教師看板</button>
+    <div id="login-err" style="display:none;margin-top:10px;font-size:13px;color:var(--red);text-align:center">❌ 密碼錯誤</div>
+  </div></div>
+</div>
+<div id="st" class="screen">
+  <div class="bar bar-tch">
+    <div class="icon">👩‍🏫</div>
+    <div class="flex1">
+      <div style="display:flex;align-items:center;justify-content:space-between"><div class="ttl">教師成績管理</div><button class="back-btn" onclick="go('sw')">← 返回</button></div>
+      <div class="sub">國小高年級數學補救教學測驗｜50題</div>
+    </div>
+  </div>
+  <div class="body">
+    <div class="tc"><h3>🔍 篩選條件</h3>
+      <div class="tc-filter">
+        <select id="t-cls-filter"><option value="">所有班級</option>
+          <option>五年一班</option><option>五年二班</option><option>五年三班</option>
+          <option>五年四班</option><option>五年五班</option><option>五年六班</option>
+          <option>六年一班</option><option>六年二班</option><option>六年三班</option>
+          <option>六年四班</option><option>六年五班</option><option>六年六班</option></select>
+        <button onclick="loadTeacherData()">🔄 載入資料</button>
+        <span id="t-loading" style="display:none;font-size:13px;color:var(--texth)"><span class="spin"></span>載入中...</span>
+      </div>
+      <div id="t-fb-note" style="font-size:12px;color:var(--texth);margin-top:4px"></div>
+    </div>
+    <div class="tc"><h3>📋 學生作答記錄</h3><div id="tlist"></div></div>
+    <div class="tc"><h3>🎯 各單元弱點分析</h3><div id="tweak"></div></div>
+    <div class="tc"><h3>📌 補救教學建議</h3><div id="tremed"></div></div>
+  </div>
+</div>
+<script>
+const TEACHER_PASSWORD="teacher123",COLLECTION="mathQuiz_highgrade_50q",TOTAL_Q=50;
+let db=null,useFirebase=false,curQ=0,answers=[],stu={},answered=false;
+
+function initFirebase(){
+  try{
+    const c={apiKey:"AIzaSyC9lemHX8VEk7DiszkanLWGZjXB4TlCJKs",authDomain:"math-5-6.firebaseapp.com",projectId:"math-5-6",storageBucket:"math-5-6.firebasestorage.app",messagingSenderId:"791241827089",appId:"1:791241827089:web:d33aec52c2bd1f59b322b0",measurementId:"G-EW3ZB5YZKW"};
+    if(!firebase.apps.length)firebase.initializeApp(c);
+    db=firebase.firestore();useFirebase=true;
+  }catch(e){console.error("Firebase:",e);}
+}
+
+const QS=[
+{id:1,cat:'因數與倍數',uc:{bg:'#ccfbf1',c:'#0f766e',bar:'linear-gradient(135deg,#042f2e,#0f766e)'},text:'36 的因數共有幾個？',ch:["A. 6個", "B. 8個", "C. 9個", "D. 12個"],ans:2,exp:'36的因數：1,2,3,4,6,9,12,18,36，共 <b>9個</b>。'},
+{id:2,cat:'因數與倍數',uc:{bg:'#ccfbf1',c:'#0f766e',bar:'linear-gradient(135deg,#042f2e,#0f766e)'},text:'42 和 56 的最大公因數是多少？',ch:["A. 6", "B. 7", "C. 14", "D. 21"],ans:2,exp:'42＝2×3×7，56＝2³×7，最大公因數＝2×7＝<b>14</b>。'},
+{id:3,cat:'因數與倍數',uc:{bg:'#ccfbf1',c:'#0f766e',bar:'linear-gradient(135deg,#042f2e,#0f766e)'},text:'6 和 8 的最小公倍數是多少？',ch:["A. 12", "B. 24", "C. 48", "D. 96"],ans:1,exp:'LCM(6,8)：6＝2×3，8＝2³，LCM＝2³×3＝<b>24</b>。'},
+{id:4,cat:'因數與倍數',uc:{bg:'#ccfbf1',c:'#0f766e',bar:'linear-gradient(135deg,#042f2e,#0f766e)'},text:'下列哪個數是質數？',ch:["A. 49", "B. 51", "C. 57", "D. 61"],ans:3,exp:'49＝7²，51＝3×17，57＝3×19，<b>61</b> 只能被1和61整除，是質數。'},
+{id:5,cat:'因數與倍數',uc:{bg:'#ccfbf1',c:'#0f766e',bar:'linear-gradient(135deg,#042f2e,#0f766e)'},text:'甲、乙兩數最大公因數是 4，最小公倍數是 60，若甲數是 12，乙數是多少？',ch:["A. 15", "B. 20", "C. 24", "D. 30"],ans:1,exp:'乙＝GCD×LCM÷甲＝4×60÷12＝<b>20</b>。驗算：GCD(12,20)＝4 ✓，LCM(12,20)＝60 ✓'},
+{id:6,cat:'分數加減',uc:{bg:'#ede9fe',c:'#6d28d9',bar:'linear-gradient(135deg,#2e1065,#6d28d9)'},text:'計算：<b>1/3 ＋ 1/4</b> ＝ ?',ch:["A. 2/7", "B. 7/12", "C. 1/6", "D. 5/12"],ans:1,exp:'通分：4/12＋3/12＝<b>7/12</b>。'},
+{id:7,cat:'分數加減',uc:{bg:'#ede9fe',c:'#6d28d9',bar:'linear-gradient(135deg,#2e1065,#6d28d9)'},text:'計算：<b>5/6 － 1/4</b> ＝ ?',ch:["A. 4/12", "B. 5/12", "C. 7/12", "D. 4/2"],ans:2,exp:'通分：10/12－3/12＝<b>7/12</b>。'},
+{id:8,cat:'分數加減',uc:{bg:'#ede9fe',c:'#6d28d9',bar:'linear-gradient(135deg,#2e1065,#6d28d9)'},text:'計算：<b>2/3 ＋ 3/4</b> ＝ ?',ch:["A. 5/7", "B. 1又5/12", "C. 5/12", "D. 17/7"],ans:1,exp:'通分：8/12＋9/12＝17/12＝<b>1又5/12</b>。'},
+{id:9,cat:'分數加減',uc:{bg:'#ede9fe',c:'#6d28d9',bar:'linear-gradient(135deg,#2e1065,#6d28d9)'},text:'計算：<b>3/5 － 1/6</b> ＝ ?',ch:["A. 2/4", "B. 2/11", "C. 13/30", "D. 1/30"],ans:2,exp:'通分：18/30－5/30＝<b>13/30</b>。'},
+{id:10,cat:'分數加減',uc:{bg:'#ede9fe',c:'#6d28d9',bar:'linear-gradient(135deg,#2e1065,#6d28d9)'},text:'計算：<b>2又1/4 ＋ 1又2/3</b> ＝ ?',ch:["A. 3又1/2", "B. 3又11/12", "C. 4又1/12", "D. 3又7/12"],ans:1,exp:'9/4＋5/3＝27/12＋20/12＝47/12＝<b>3又11/12</b>。'},
+{id:11,cat:'分數乘除',uc:{bg:'#ede9fe',c:'#6d28d9',bar:'linear-gradient(135deg,#2e1065,#6d28d9)'},text:'計算：<b>3/4 × 8/9</b> ＝ ?',ch:["A. 1/2", "B. 2/3", "C. 3/4", "D. 11/13"],ans:1,exp:'3/4×8/9＝24/36，化簡（÷12）＝<b>2/3</b>。'},
+{id:12,cat:'分數乘除',uc:{bg:'#ede9fe',c:'#6d28d9',bar:'linear-gradient(135deg,#2e1065,#6d28d9)'},text:'計算：<b>5/6 × 3/10</b> ＝ ?',ch:["A. 1/4", "B. 1/3", "C. 5/4", "D. 3/5"],ans:0,exp:'5/6×3/10＝15/60，化簡（÷15）＝<b>1/4</b>。'},
+{id:13,cat:'分數乘除',uc:{bg:'#ede9fe',c:'#6d28d9',bar:'linear-gradient(135deg,#2e1065,#6d28d9)'},text:'計算：<b>2/3 ÷ 4/9</b> ＝ ?',ch:["A. 8/27", "B. 1又1/3", "C. 1又1/2", "D. 2/3"],ans:2,exp:'2/3÷4/9＝2/3×9/4＝18/12＝3/2＝<b>1又1/2</b>。'},
+{id:14,cat:'分數乘除',uc:{bg:'#ede9fe',c:'#6d28d9',bar:'linear-gradient(135deg,#2e1065,#6d28d9)'},text:'計算：<b>4 ÷ 2/5</b> ＝ ?',ch:["A. 8/5", "B. 8", "C. 10", "D. 20"],ans:2,exp:'4÷2/5＝4×5/2＝20/2＝<b>10</b>。驗算：10×2/5＝4 ✓'},
+{id:15,cat:'分數乘除',uc:{bg:'#ede9fe',c:'#6d28d9',bar:'linear-gradient(135deg,#2e1065,#6d28d9)'},text:'計算：<b>7/8 ÷ 7/4</b> ＝ ?',ch:["A. 1/4", "B. 1/2", "C. 7/2", "D. 2"],ans:1,exp:'7/8÷7/4＝7/8×4/7＝28/56＝<b>1/2</b>。'},
+{id:16,cat:'小數運算',uc:{bg:'#dbeafe',c:'#1d4ed8',bar:'linear-gradient(135deg,#1e3a8a,#1d4ed8)'},text:'計算：<b>4.5 ＋ 2.37</b> ＝ ?',ch:["A. 6.87", "B. 6.78", "C. 7.87", "D. 6.97"],ans:0,exp:'4.50＋2.37＝<b>6.87</b>。'},
+{id:17,cat:'小數運算',uc:{bg:'#dbeafe',c:'#1d4ed8',bar:'linear-gradient(135deg,#1e3a8a,#1d4ed8)'},text:'計算：<b>8.3 － 4.56</b> ＝ ?',ch:["A. 3.64", "B. 3.74", "C. 4.74", "D. 3.84"],ans:1,exp:'8.30－4.56＝<b>3.74</b>。'},
+{id:18,cat:'小數運算',uc:{bg:'#dbeafe',c:'#1d4ed8',bar:'linear-gradient(135deg,#1e3a8a,#1d4ed8)'},text:'計算：<b>2.4 × 3.5</b> ＝ ?',ch:["A. 7.4", "B. 8.0", "C. 8.4", "D. 9.4"],ans:2,exp:'24×35＝840，兩數共2位小數，答案＝<b>8.4</b>。'},
+{id:19,cat:'小數運算',uc:{bg:'#dbeafe',c:'#1d4ed8',bar:'linear-gradient(135deg,#1e3a8a,#1d4ed8)'},text:'計算：<b>1.25 × 0.8</b> ＝ ?',ch:["A. 0.1", "B. 1", "C. 10", "D. 0.01"],ans:1,exp:'125×8＝1000，共3位小數，答案＝<b>1</b>。'},
+{id:20,cat:'小數運算',uc:{bg:'#dbeafe',c:'#1d4ed8',bar:'linear-gradient(135deg,#1e3a8a,#1d4ed8)'},text:'計算：<b>5.6 ÷ 0.7</b> ＝ ?',ch:["A. 0.8", "B. 8", "C. 80", "D. 0.08"],ans:1,exp:'同乘10：56÷7＝<b>8</b>。'},
+{id:21,cat:'小數運算',uc:{bg:'#dbeafe',c:'#1d4ed8',bar:'linear-gradient(135deg,#1e3a8a,#1d4ed8)'},text:'計算：<b>3.6 ÷ 1.2</b> ＝ ?',ch:["A. 0.3", "B. 3", "C. 30", "D. 0.03"],ans:1,exp:'同乘10：36÷12＝<b>3</b>。'},
+{id:22,cat:'小數運算',uc:{bg:'#dbeafe',c:'#1d4ed8',bar:'linear-gradient(135deg,#1e3a8a,#1d4ed8)'},text:'計算：<b>4.8 ÷ 0.04</b> ＝ ?',ch:["A. 12", "B. 1.2", "C. 120", "D. 1200"],ans:2,exp:'同乘100：480÷4＝<b>120</b>。'},
+{id:23,cat:'比與比值',uc:{bg:'#fef3c7',c:'#b45309',bar:'linear-gradient(135deg,#78350f,#b45309)'},text:'6：8 的比值是多少？',ch:["A. 3/4", "B. 4/3", "C. 2/3", "D. 8/6"],ans:0,exp:'比值＝前項÷後項＝6÷8＝<b>3/4</b>。'},
+{id:24,cat:'比與比值',uc:{bg:'#fef3c7',c:'#b45309',bar:'linear-gradient(135deg,#78350f,#b45309)'},text:'18：24 化簡後是多少？',ch:["A. 9:12", "B. 3:4", "C. 6:8", "D. 2:3"],ans:1,exp:'GCD(18,24)＝6，18÷6：24÷6＝<b>3:4</b>。'},
+{id:25,cat:'比與比值',uc:{bg:'#fef3c7',c:'#b45309',bar:'linear-gradient(135deg,#78350f,#b45309)'},text:'3：5 ＝ □：20，□是多少？',ch:["A. 8", "B. 10", "C. 12", "D. 15"],ans:2,exp:'□＝3×20÷5＝<b>12</b>。驗算：12:20化簡＝3:5 ✓'},
+{id:26,cat:'比與比值',uc:{bg:'#fef3c7',c:'#b45309',bar:'linear-gradient(135deg,#78350f,#b45309)'},text:'甲、乙兩人以 3：2 的比例分配 180 元，甲得多少元？',ch:["A. 90", "B. 100", "C. 108", "D. 120"],ans:2,exp:'甲＝180×3÷(3＋2)＝180×3/5＝<b>108元</b>。乙＝72元，108:72＝3:2 ✓'},
+{id:27,cat:'比與比值',uc:{bg:'#fef3c7',c:'#b45309',bar:'linear-gradient(135deg,#78350f,#b45309)'},text:'地圖比例尺 1：50000，圖上 2 公分的實際距離是多少公尺？',ch:["A. 100", "B. 1000", "C. 10000", "D. 100000"],ans:1,exp:'實際＝2×50000＝100000公分＝<b>1000公尺</b>。'},
+{id:28,cat:'面積與周長',uc:{bg:'#dcfce7',c:'#166534',bar:'linear-gradient(135deg,#052e16,#166534)'},text:'長方形長 15 公分、寬 9 公分，面積是多少平方公分？',ch:["A. 48", "B. 125", "C. 135", "D. 150"],ans:2,exp:'面積＝長×寬＝15×9＝<b>135平方公分</b>。'},
+{id:29,cat:'面積與周長',uc:{bg:'#dcfce7',c:'#166534',bar:'linear-gradient(135deg,#052e16,#166534)'},text:'三角形底 12 公分、高 8 公分，面積是多少平方公分？',ch:["A. 48", "B. 96", "C. 24", "D. 64"],ans:0,exp:'面積＝底×高÷2＝12×8÷2＝<b>48平方公分</b>。'},
+{id:30,cat:'面積與周長',uc:{bg:'#dcfce7',c:'#166534',bar:'linear-gradient(135deg,#052e16,#166534)'},text:'圓形半徑 7 公分（π取3.14），面積是多少平方公分？',ch:["A. 43.96", "B. 153.86", "C. 21.98", "D. 78.5"],ans:1,exp:'面積＝π×r²＝3.14×49＝<b>153.86平方公分</b>。'},
+{id:31,cat:'面積與周長',uc:{bg:'#dcfce7',c:'#166534',bar:'linear-gradient(135deg,#052e16,#166534)'},text:'梯形上底 6 公分、下底 10 公分、高 8 公分，面積是多少平方公分？',ch:["A. 48", "B. 64", "C. 80", "D. 128"],ans:1,exp:'面積＝(6＋10)×8÷2＝<b>64平方公分</b>。'},
+{id:32,cat:'面積與周長',uc:{bg:'#dcfce7',c:'#166534',bar:'linear-gradient(135deg,#052e16,#166534)'},text:'平行四邊形底 15 公分、高 7 公分，面積是多少平方公分？',ch:["A. 45", "B. 84", "C. 105", "D. 210"],ans:2,exp:'面積＝底×高＝15×7＝<b>105平方公分</b>。'},
+{id:33,cat:'面積與周長',uc:{bg:'#dcfce7',c:'#166534',bar:'linear-gradient(135deg,#052e16,#166534)'},text:'長方形長 10 公分、寬 6 公分，周長是多少公分？',ch:["A. 16", "B. 32", "C. 60", "D. 64"],ans:1,exp:'周長＝2×(10＋6)＝<b>32公分</b>。'},
+{id:34,cat:'面積與周長',uc:{bg:'#dcfce7',c:'#166534',bar:'linear-gradient(135deg,#052e16,#166534)'},text:'正方形面積為 36 平方公分，其周長是多少公分？',ch:["A. 12", "B. 18", "C. 24", "D. 36"],ans:2,exp:'邊長＝√36＝6公分，周長＝4×6＝<b>24公分</b>。'},
+{id:35,cat:'面積與周長',uc:{bg:'#dcfce7',c:'#166534',bar:'linear-gradient(135deg,#052e16,#166534)'},text:'圓形直徑 10 公分（π取3.14），圓周長是多少公分？',ch:["A. 15.7", "B. 31.4", "C. 78.5", "D. 314"],ans:1,exp:'圓周長＝π×直徑＝3.14×10＝<b>31.4公分</b>。'},
+{id:36,cat:'體積與表面積',uc:{bg:'#fee2e2',c:'#b91c1c',bar:'linear-gradient(135deg,#450a0a,#b91c1c)'},text:'長方體長 8 公分、寬 5 公分、高 3 公分，體積是多少立方公分？',ch:["A. 60", "B. 90", "C. 120", "D. 180"],ans:2,exp:'體積＝長×寬×高＝8×5×3＝<b>120立方公分</b>。'},
+{id:37,cat:'體積與表面積',uc:{bg:'#fee2e2',c:'#b91c1c',bar:'linear-gradient(135deg,#450a0a,#b91c1c)'},text:'正方體邊長 4 公分，體積是多少立方公分？',ch:["A. 16", "B. 32", "C. 48", "D. 64"],ans:3,exp:'體積＝邊長³＝4×4×4＝<b>64立方公分</b>。'},
+{id:38,cat:'體積與表面積',uc:{bg:'#fee2e2',c:'#b91c1c',bar:'linear-gradient(135deg,#450a0a,#b91c1c)'},text:'三角柱底面為直角三角形（兩股 6cm 和 8cm），高 10 公分，體積是多少立方公分？',ch:["A. 180", "B. 240", "C. 300", "D. 480"],ans:1,exp:'底面積＝6×8÷2＝24，體積＝24×10＝<b>240立方公分</b>。'},
+{id:39,cat:'體積與表面積',uc:{bg:'#fee2e2',c:'#b91c1c',bar:'linear-gradient(135deg,#450a0a,#b91c1c)'},text:'圓柱底面半徑 3 公分、高 10 公分（π取3.14），體積是多少立方公分？',ch:["A. 94.2", "B. 188.4", "C. 282.6", "D. 565.2"],ans:2,exp:'底面積＝3.14×9＝28.26，體積＝28.26×10＝<b>282.6立方公分</b>。'},
+{id:40,cat:'體積與表面積',uc:{bg:'#fee2e2',c:'#b91c1c',bar:'linear-gradient(135deg,#450a0a,#b91c1c)'},text:'長方體長 6 公分、寬 4 公分、高 5 公分，表面積是多少平方公分？',ch:["A. 120", "B. 148", "C. 240", "D. 74"],ans:1,exp:'表面積＝2×(6×4＋6×5＋4×5)＝2×74＝<b>148平方公分</b>。'},
+{id:41,cat:'體積與表面積',uc:{bg:'#fee2e2',c:'#b91c1c',bar:'linear-gradient(135deg,#450a0a,#b91c1c)'},text:'正方體邊長 5 公分，表面積是多少平方公分？',ch:["A. 25", "B. 75", "C. 125", "D. 150"],ans:3,exp:'表面積＝6×邊長²＝6×25＝<b>150平方公分</b>。'},
+{id:42,cat:'體積與表面積',uc:{bg:'#fee2e2',c:'#b91c1c',bar:'linear-gradient(135deg,#450a0a,#b91c1c)'},text:'圓柱底面半徑 2 公分、高 5 公分（π取3.14），側面積是多少平方公分？',ch:["A. 31.4", "B. 62.8", "C. 125.6", "D. 12.56"],ans:1,exp:'側面積＝2×π×r×h＝2×3.14×2×5＝<b>62.8平方公分</b>。'},
+{id:43,cat:'統計與平均',uc:{bg:'#fce7f3',c:'#be185d',bar:'linear-gradient(135deg,#831843,#be185d)'},text:'五次測驗成績：72、86、91、68、83，平均是多少分？',ch:["A. 78", "B. 80", "C. 82", "D. 84"],ans:1,exp:'總分＝72＋86＋91＋68＋83＝400，平均＝400÷5＝<b>80分</b>。'},
+{id:44,cat:'統計與平均',uc:{bg:'#fce7f3',c:'#be185d',bar:'linear-gradient(135deg,#831843,#be185d)'},text:'一組數據：3、7、5、7、2、8、7，眾數是多少？',ch:["A. 5", "B. 6", "C. 7", "D. 8"],ans:2,exp:'7出現3次，最多，眾數＝<b>7</b>。'},
+{id:45,cat:'統計與平均',uc:{bg:'#fce7f3',c:'#be185d',bar:'linear-gradient(135deg,#831843,#be185d)'},text:'由小到大排列：2、5、7、9、12，中位數是多少？',ch:["A. 5", "B. 7", "C. 8", "D. 9"],ans:1,exp:'共5個數，第3個為 <b>7</b>，即中位數。'},
+{id:46,cat:'統計與平均',uc:{bg:'#fce7f3',c:'#be185d',bar:'linear-gradient(135deg,#831843,#be185d)'},text:'六位同學身高（公分）：150、152、154、156、158、160，平均身高是多少公分？',ch:["A. 152", "B. 153", "C. 155", "D. 158"],ans:2,exp:'總和＝150＋152＋154＋156＋158＋160＝930，平均＝930÷6＝<b>155公分</b>。'},
+{id:47,cat:'速率與應用',uc:{bg:'#e0e7ff',c:'#4338ca',bar:'linear-gradient(135deg,#1e1b4b,#4338ca)'},text:'車速 90 公里/小時，行駛 2.5 小時，共走了多少公里？',ch:["A. 180", "B. 225", "C. 270", "D. 360"],ans:1,exp:'距離＝速度×時間＝90×2.5＝<b>225公里</b>。'},
+{id:48,cat:'速率與應用',uc:{bg:'#e0e7ff',c:'#4338ca',bar:'linear-gradient(135deg,#1e1b4b,#4338ca)'},text:'商品定價 600 元，打九折優惠，售價是多少元？',ch:["A. 480", "B. 510", "C. 540", "D. 560"],ans:2,exp:'售價＝600×0.9＝<b>540元</b>。（九折即乘以0.9）'},
+{id:49,cat:'速率與應用',uc:{bg:'#e0e7ff',c:'#4338ca',bar:'linear-gradient(135deg,#1e1b4b,#4338ca)'},text:'甲一人做 6 天完成，乙一人做 4 天完成，兩人合做幾天完成？',ch:["A. 2天", "B. 2.4天", "C. 3天", "D. 5天"],ans:1,exp:'合做效率＝1/6＋1/4＝5/12，天數＝12/5＝<b>2.4天</b>。'},
+{id:50,cat:'速率與應用',uc:{bg:'#e0e7ff',c:'#4338ca',bar:'linear-gradient(135deg,#1e1b4b,#4338ca)'},text:'一條路長 100 公尺，每隔 5 公尺種一棵樹，兩端都要種，共需幾棵？',ch:["A. 19", "B. 20", "C. 21", "D. 22"],ans:2,exp:'棵數＝100÷5＋1＝21棵。（兩端都種加1）'},
+];
+
+const REMEDY={
+  "因數與倍數":"建議用短除法或分解質因數練習求GCD/LCM。讓學生先各自列出因數再找共同的，培養系統性思維。辨別質數可先學「只有1和本身兩個因數」的定義。",
+  "分數加減":"分數加減的關鍵是通分。建議讓學生先寫出兩分母的倍數列，找最小公倍數。帶分數先換成假分數再計算，避免混亂。計算完一定要化為最簡分數。",
+  "分數乘除":"分數乘法先約分再相乘效率更高。除以分數等於乘以倒數，建議讓學生先圈出除數，寫出倒數，再計算。每次計算後確認是否已化簡。",
+  "小數運算":"小數運算的關鍵是小數點位置。乘法：兩數小數位數相加。除法：分母化整數，分子跟著移動相同位數。建議先估算大概答案，再驗算。",
+  "比與比值":"比值＝前項÷後項。化簡比找GCD。比例式用「內項積＝外項積」求未知數。分配問題先求總份數，再算各份。",
+  "面積與周長":"建議製作公式卡讓學生隨時對照。三角形面積÷2容易忘記。圓形計算前確認用的是半徑還是直徑。梯形記憶：兩底相加×高÷2。",
+  "體積與表面積":"體積＝底面積×高，關鍵是先求底面積。表面積需數出所有面，建議畫展開圖。圓柱注意：底面是圓形，表面積要加兩個底面。",
+  "統計與平均":"平均＝總量÷個數。眾數是出現最多次的數。中位數要先排序再找中間值（偶數個取中間兩數的平均）。",
+  "速率與應用":"速率問題：距離＝速度×時間，三個量知道兩個就能求第三個。工程問題：先算各自效率（1/天數），合做效率相加再取倒數。植樹問題：區分封閉路線和開放路線。"
+};
+
+function go(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));document.getElementById(id).classList.add("active");window.scrollTo(0,0);}
+
+function startQuiz(){
+  const cls=document.getElementById("icls").value,seat=document.getElementById("iseat").value;
+  if(!cls){alert("請選擇班級！");return;}if(!seat){alert("請輸入座號！");return;}
+  stu={cls,seat,time:new Date().toLocaleString("zh-TW")};answers=[];curQ=0;loadQ(0);go("sq");
+}
+
+function loadQ(idx){
+  answered=false;const q=QS[idx];
+  const pct=Math.round((idx+1)/TOTAL_Q*100);
+  document.getElementById("qcnt").textContent=(idx+1)+" / "+TOTAL_Q;
+  document.getElementById("pfill").style.width=pct+"%";
+  document.getElementById("q-unit-tag").textContent=q.cat;
+  document.getElementById("q-icon").textContent=
+    {因數與倍數:"🔵",分數加減:"🔷",分數乘除:"🔷",小數運算:"🟦",比與比值:"🟡",面積與周長:"🟢",體積與表面積:"🔴",統計與平均:"🩷",速率與應用:"🟣"}[q.cat]||"🔢";
+  document.getElementById("q-bar").style.background=q.uc.bar;
+  const tag=document.getElementById("qcat");
+  tag.textContent="第"+q.id+"題｜"+q.cat;
+  tag.style.background=q.uc.bg;tag.style.color=q.uc.c;
+  document.getElementById("qtext").innerHTML=q.text;
+  const cc=document.getElementById("choices");cc.innerHTML="";
+  q.ch.forEach((ch,i)=>{
+    const b=document.createElement("button");b.className="ch";
+    b.innerHTML='<span class="ch-lbl">'+["A","B","C","D"][i]+'</span><span>'+ch.slice(3)+'</span>';
+    b.onclick=()=>pick(i);cc.appendChild(b);
+  });
+  document.getElementById("fb").className="fb";
+  document.getElementById("bnnx").className="btn-nx";
+}
+
+function pick(idx){
+  if(answered)return;answered=true;
+  const q=QS[curQ],ok=idx===q.ans;
+  answers.push({id:q.id,cat:q.cat,uc:q.uc,text:q.text,correct:ok,chosenIdx:idx,rightIdx:q.ans,chosen:q.ch[idx],right:q.ch[q.ans],exp:q.exp});
+  document.querySelectorAll(".ch").forEach((b,i)=>{
+    if(i===q.ans)b.classList.add("correct");
+    else if(i===idx&&!ok)b.classList.add("wrong");
+    else b.classList.add("dim");
+  });
+  const fbEl=document.getElementById("fb");
+  document.getElementById("fi").textContent=ok?"✅":"❌";
+  document.getElementById("ft").innerHTML=ok?"答對了！<br><span style=\"font-size:12.5px;opacity:.85\">"+q.exp+"</span>":"答錯了！<br><span style=\"font-size:12.5px\">"+q.exp+"</span>";
+  fbEl.className="fb on "+(ok?"ok":"no");
+  const nx=document.getElementById("bnnx");nx.className="btn-nx on";
+  nx.textContent=curQ<TOTAL_Q-1?"下一題 →":"查看結果 →";
+}
+function nextQ(){curQ++;if(curQ>=TOTAL_Q)showResult();else loadQ(curQ);}
+
+async function showResult(){
+  const corr=answers.filter(a=>a.correct).length,score=corr*2;
+  document.getElementById("rname").textContent=stu.cls+" "+stu.seat+"號 ｜ "+stu.time;
+  document.getElementById("snum").textContent=score;
+  document.getElementById("st1").textContent=corr;
+  document.getElementById("st2").textContent=TOTAL_Q-corr;
+  document.getElementById("st3").textContent=score+"分";
+  document.getElementById("st4").textContent=score+"%";
+  const ring=document.getElementById("sring");
+  ring.className="score-ring "+(score>=80?"rh":score>=60?"rm":"rl");
+  const msgs=score>=80?["🌟 表現優秀！","九大單元都掌握良好！"]:score>=60?["👍 繼續加油！","部分單元需要再複習。"]:["💪 需要加強！","建議老師安排補救教學。"];
+  document.getElementById("smsg").textContent=msgs[0];document.getElementById("ssub").textContent=msgs[1];
+
+  const cats=[...new Set(QS.map(q=>q.cat))];
+  const catRpt=document.getElementById("catrpt");catRpt.innerHTML="";
+  cats.forEach(cat=>{
+    const subAs=answers.filter(a=>a.cat===cat);
+    const sc=subAs.filter(a=>a.correct).length,pct=subAs.length?Math.round(sc/subAs.length*100):0;
+    const col=pct>=80?"#178a56":pct>=60?"#b87010":"#c82828";
+    const wrong=subAs.filter(a=>!a.correct);
+    const q0=QS.find(q=>q.cat===cat);
+    const div=document.createElement("div");div.className="cat-card";
+    div.innerHTML='<div class="cat-hd"><div class="cat-nm"><span style="font-size:11px;background:'+q0.uc.bg+';color:'+q0.uc.c+';padding:2px 8px;border-radius:12px;font-weight:700">'+cat+'</span><div class="bar-bg"><div class="bar-fg" style="width:'+pct+'%;background:'+col+'"></div></div></div><div class="cat-sc" style="color:'+col+'">'+sc+"/"+subAs.length+"題</div></div>"+
+    (wrong.length?'<div class="wrong-list">'+wrong.map(a=>'<div class="wi"><div class="wlbl">第'+a.id+'題</div>你選：<span style="color:var(--red)">'+a.chosen+'</span>　正解：<span style="color:var(--green)">'+a.right+"</span></div>").join("")+"</div>":"");
+    catRpt.appendChild(div);
+  });
+
+  const wrongAll=answers.filter(a=>!a.correct);
+  const wd=document.getElementById("wrongdet");
+  wd.innerHTML=wrongAll.length?wrongAll.map(a=>'<div class="di"><div class="di-tags"><span class="di-tag" style="background:'+a.uc.bg+';color:'+a.uc.c+'">第'+a.id+"題｜"+a.cat+"</span></div><div class=\"di-q\">"+a.text+"</div><div class=\"di-ans\"><span style=\"background:#fdeaea;color:#c82828;padding:2px 9px;border-radius:20px;font-size:12.5px;font-weight:700\">✗ "+a.chosen+"</span><span style=\"color:#8a96a6\">→</span><span style=\"background:#e7f6ef;color:#178a56;padding:2px 9px;border-radius:20px;font-size:12.5px;font-weight:700\">✓ "+a.right+"</span></div><div class=\"di-exp\">📝 "+a.exp+"</div></div>").join(""):"<div style=\"text-align:center;padding:18px;color:#178a56;font-weight:900;font-size:16px\">🎉 全部答對！數學滿分！</div>";
+
+  const catScores={};cats.forEach(c=>{catScores[c]=answers.filter(a=>a.cat===c&&a.correct).length;});
+  const record={cls:stu.cls,seat:parseInt(stu.seat),timestamp:useFirebase?firebase.firestore.FieldValue.serverTimestamp():null,localTime:stu.time,score,correct:corr,totalQ:TOTAL_Q,catScores,wrongSubs:wrongAll.map(a=>{return{sub:a.cat,unit:a.cat}})};
+  const statusEl=document.getElementById("upload-status");
+  if(useFirebase){
+    try{await db.collection(COLLECTION).add(record);statusEl.textContent="✅ 作答記錄已成功上傳雲端！老師可在教師看板查閱。";statusEl.className="fb-status ok";statusEl.style.display="block";}
+    catch(e){statusEl.textContent="⚠️ 雲端上傳失敗，記錄已儲存於本機。";statusEl.className="fb-status err";statusEl.style.display="block";saveLocal(record);}
+  }else{statusEl.style.display="none";saveLocal(record);}
+  go("sr");
+}
+
+function saveLocal(r){const a=JSON.parse(localStorage.getItem("mathQuiz50")||"[]");a.push(r);localStorage.setItem("mathQuiz50",JSON.stringify(a));}
+
+function teacherLogin(){
+  const pwd=document.getElementById("t-pwd").value;
+  if(pwd===TEACHER_PASSWORD){document.getElementById("login-err").style.display="none";document.getElementById("t-pwd").value="";go("st");loadTeacherData();}
+  else document.getElementById("login-err").style.display="block";
+}
+
+async function loadTeacherData(){
+  const cls=document.getElementById("t-cls-filter").value;
+  document.getElementById("t-loading").style.display="inline";let recs=[];
+  if(useFirebase){
+    try{let q=db.collection(COLLECTION).orderBy("timestamp","desc").limit(500);if(cls)q=db.collection(COLLECTION).where("cls","==",cls).orderBy("timestamp","desc").limit(500);const snap=await q.get();recs=snap.docs.map(d=>{return{id:d.id,...d.data()}});document.getElementById("t-fb-note").textContent="📡 Firebase 雲端";}
+    catch(e){recs=getLocalRecs(cls);document.getElementById("t-fb-note").textContent="⚠️ 雲端失敗，顯示本機";}
+  }else{recs=getLocalRecs(cls);document.getElementById("t-fb-note").textContent="💾 本機模式";}
+  document.getElementById("t-loading").style.display="none";renderTeacher(recs,cls);
+}
+function getLocalRecs(cls){const a=JSON.parse(localStorage.getItem("mathQuiz50")||"[]");return cls?a.filter(r=>r.cls===cls):a;}
+
+function renderTeacher(recs,cls){
+  const tl=document.getElementById("tlist");
+  if(!recs.length){tl.innerHTML='<div class="empty">📭 尚無記錄'+(cls?" ("+cls+")")+"</div>";}
+  else{
+    const avg=(recs.reduce((s,r)=>s+r.score,0)/recs.length).toFixed(1),hi=recs.filter(r=>r.score>=80).length;
+    tl.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px"><div style="background:#f4f6f9;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#1d4ed8">'+recs.length+'</div><div style="font-size:10.5px;color:#8a96a6">作答人數</div></div><div style="background:#f4f6f9;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#1d4ed8">'+avg+'</div><div style="font-size:10.5px;color:#8a96a6">平均分數</div></div><div style="background:#f4f6f9;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#178a56">'+hi+'</div><div style="font-size:10.5px;color:#8a96a6">80分以上</div></div></div>'+
+    recs.map(r=>{const c=r.score>=80?"#178a56":r.score>=60?"#b87010":"#c82828",bg=r.score>=80?"#e7f6ef":r.score>=60?"#fdf3e0":"#fdeaea",t=r.localTime||(r.timestamp&&r.timestamp.toDate?r.timestamp.toDate().toLocaleString("zh-TW"):"");
+    return '<div class="sr-row"><div class="av">'+r.cls.replace("年","y").replace("班","")+'</div><div class="sinfo"><div class="nm">'+r.cls+" "+r.seat+"號</div><div class=\"mt\">"+t+"　得分："+r.score+"/100</div></div><div class=\"sbadge\" style=\"color:"+c+";background:"+bg+'">'+r.score+"分</div></div>";}).join("")+(!useFirebase?'<button class="btn-clr" onclick="clearRecs()">清除本機記錄</button>':"");
+  }
+
+  const cats=[...new Set(QS.map(q=>q.cat))];
+  const tw=document.getElementById("tweak");
+  if(!recs.length){tw.innerHTML='<div class="empty">暫無資料</div>';}
+  else{
+    tw.innerHTML='<div style="font-size:12px;color:var(--texth);margin-bottom:10px">共 '+recs.length+"筆"+(cls?" ("+cls+")")+"</div>"+
+    cats.map(cat=>{
+      const total=recs.length*QS.filter(q=>q.cat===cat).length;
+      const correct=recs.reduce((s,r)=>r.catScores?s+(r.catScores[cat]||0):s,0);
+      const pct=total?Math.round(correct/total*100):0,col=pct>=80?"#178a56":pct>=60?"#b87010":"#c82828";
+      const q0=QS.find(q=>q.cat===cat);
+      return '<div class="wb"><div class="wbr"><span style="font-size:11px;background:'+q0.uc.bg+';color:'+q0.uc.c+';padding:2px 8px;border-radius:12px;font-weight:700;margin-right:5px">'+cat+"</span><span style=\"color:"+col+";font-weight:700\">正確率 "+pct+"% ("+correct+"/"+total+")</span></div><div class=\"wbb\"><div class=\"wbf\" style=\"width:"+pct+"%;background:"+col+'"></div></div></div>';}).join("");
+  }
+
+  const tr=document.getElementById("tremed");
+  if(!recs.length){tr.innerHTML='<div class="empty">暫無資料</div>';}
+  else{
+    const sorted=cats.map(cat=>{
+      const total=recs.length*QS.filter(q=>q.cat===cat).length;
+      const correct=recs.reduce((s,r)=>r.catScores?s+(r.catScores[cat]||0):s,0);
+      return{cat,pct:total?Math.round(correct/total*100):100};
+    }).sort((a,b)=>a.pct-b.pct);
+    tr.innerHTML='<div style="margin-bottom:11px;font-size:13.5px;line-height:1.8">根據各單元正確率，建議優先補救：</div>'+
+    sorted.slice(0,4).map((s,i)=>'<div class="rmb"><b>'+(["🥇","🥈","🥉","🏅"][i])+" 優先補救："+s.cat+"</b>（正確率 "+s.pct+"%）<br>"+(REMEDY[s.cat]||"建議安排針對性練習題。")+"</div>").join("");
+  }
+}
+function clearRecs(){if(confirm("確定清除所有本機記錄？")){localStorage.removeItem("mathQuiz50");loadTeacherData();}}
+function resetAll(){document.getElementById("icls").value="";document.getElementById("iseat").value="";go("sw");}
+
+window.addEventListener("load",()=>{
+  initFirebase();go("sw");
+  const url=window.location.href;
+  const qrTarget=(url.startsWith("http")||url.startsWith("https"))?url:"https://simon05091004.github.io/";
+  const displayUrl=url.startsWith("http")?(url.length>60?url.slice(0,60)+"…":url):"（上傳至 GitHub Pages 後自動產生正確 QR Code）";
+  document.getElementById("qrurl").textContent=displayUrl;
+  if(typeof QRCode!=="undefined") new QRCode(document.getElementById("qrbox"),{text:qrTarget,width:130,height:130,colorDark:"#1e3a8a",colorLight:"#ffffff",correctLevel:QRCode.CorrectLevel.M});
+});
+</script>
+</body>
+</html>
