@@ -157,6 +157,33 @@ label.fl{display:block;font-size:12.5px;font-weight:700;color:var(--texts);margi
         <div class="sbt" style="background:#fce7f3;color:#be185d">統計與平均<br><b>4題</b></div>
         <div class="sbt" style="background:#e0e7ff;color:#4338ca">速率與應用<br><b>4題</b></div>
       </div>
+      <!-- 出題設定 -->
+      <div style="background:#f0f4ff;border-radius:10px;padding:14px 16px;margin-bottom:14px;border:1.5px solid #c7d7f8">
+        <div style="font-size:13px;font-weight:700;color:#1d4ed8;margin-bottom:10px">⚙️ 出題設定</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:13.5px;font-weight:600">題目順序隨機化</span>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+            <input type="checkbox" id="chk-shuffle-q" checked style="width:16px;height:16px;accent-color:#1d4ed8">
+            <span style="font-size:12.5px;color:#4e5a6a">每次不同順序</span>
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span style="font-size:13.5px;font-weight:600">選項順序隨機化</span>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+            <input type="checkbox" id="chk-shuffle-o" checked style="width:16px;height:16px;accent-color:#1d4ed8">
+            <span style="font-size:12.5px;color:#4e5a6a">ABCD 位置不固定</span>
+          </label>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:13.5px;font-weight:600">出題數量</span>
+          <div style="display:flex;gap:6px;flex-wrap:wrap">
+            <label style="cursor:pointer"><input type="radio" name="qcount" value="10" style="accent-color:#1d4ed8"> <span style="font-size:12.5px">10題</span></label>
+            <label style="cursor:pointer"><input type="radio" name="qcount" value="20" style="accent-color:#1d4ed8"> <span style="font-size:12.5px">20題</span></label>
+            <label style="cursor:pointer"><input type="radio" name="qcount" value="30" style="accent-color:#1d4ed8"> <span style="font-size:12.5px">30題</span></label>
+            <label style="cursor:pointer"><input type="radio" name="qcount" value="50" checked style="accent-color:#1d4ed8"> <span style="font-size:12.5px">全部50題</span></label>
+          </div>
+        </div>
+      </div>
       <div class="inp-row">
         <div><label class="fl">班級</label>
           <select class="inp" id="icls" style="appearance:none">
@@ -272,8 +299,44 @@ label.fl{display:block;font-size:12.5px;font-weight:700;color:var(--texts);margi
   </div>
 </div>
 <script>
-const TEACHER_PASSWORD="teacher123",COLLECTION="mathQuiz_highgrade_50q",TOTAL_Q=50;
+const TEACHER_PASSWORD="teacher123",COLLECTION="mathQuiz_highgrade_50q";
+let TOTAL_Q=50;  // 由出題設定決定
 let db=null,useFirebase=false,curQ=0,answers=[],stu={},answered=false;
+let ACTIVE_QS=[];  // 當次作答的題目陣列（已隨機化）
+
+// ── 隨機工具函式 ──
+function shuffleArr(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+// 隨機化單題選項（同時更新正確答案索引）
+function shuffleOptions(q){
+  const idx=[0,1,2,3];
+  for(let i=3;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [idx[i],idx[j]]=[idx[j],idx[i]];
+  }
+  return {
+    ...q,
+    ch: idx.map(i=>q.ch[i]),
+    ans: idx.indexOf(q.ans),
+    _origIdx: idx  // 保留原始對照
+  };
+}
+
+// 建立當次題目組
+function buildActiveQS(shuffleQ, shuffleO, count){
+  let pool = [...QS];
+  if(shuffleQ) pool = shuffleArr(pool);
+  pool = pool.slice(0, count);
+  if(shuffleO) pool = pool.map(q=>shuffleOptions(q));
+  return pool;
+}
 
 function initFirebase(){
   try{
@@ -353,13 +416,24 @@ function go(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remo
 function startQuiz(){
   const cls=document.getElementById("icls").value,seat=document.getElementById("iseat").value;
   if(!cls){alert("請選擇班級！");return;}if(!seat){alert("請輸入座號！");return;}
-  stu={cls,seat,time:new Date().toLocaleString("zh-TW")};answers=[];curQ=0;loadQ(0);go("sq");
+  const shuffleQ=document.getElementById("chk-shuffle-q").checked;
+  const shuffleO=document.getElementById("chk-shuffle-o").checked;
+  const countEl=document.querySelector('input[name="qcount"]:checked');
+  const count=countEl?parseInt(countEl.value):50;
+  TOTAL_Q=count;
+  ACTIVE_QS=buildActiveQS(shuffleQ,shuffleO,count);
+  stu={cls,seat,time:new Date().toLocaleString("zh-TW"),shuffleQ,shuffleO,count};
+  answers=[];curQ=0;loadQ(0);go("sq");
 }
 
 function loadQ(idx){
-  answered=false;const q=QS[idx];
+  answered=false;const q=ACTIVE_QS[idx];
   const pct=Math.round((idx+1)/TOTAL_Q*100);
   document.getElementById("qcnt").textContent=(idx+1)+" / "+TOTAL_Q;
+  // 進度列 title 加上隨機標示
+  if(idx===0&&stu.shuffleQ){
+    document.getElementById("q-bar").title="🔀 隨機出題模式";
+  }
   document.getElementById("pfill").style.width=pct+"%";
   document.getElementById("q-unit-tag").textContent=q.cat;
   document.getElementById("q-icon").textContent=
@@ -410,7 +484,7 @@ async function showResult(){
   const msgs=score>=80?["🌟 表現優秀！","九大單元都掌握良好！"]:score>=60?["👍 繼續加油！","部分單元需要再複習。"]:["💪 需要加強！","建議老師安排補救教學。"];
   document.getElementById("smsg").textContent=msgs[0];document.getElementById("ssub").textContent=msgs[1];
 
-  const cats=[...new Set(QS.map(q=>q.cat))];
+  const cats=[...new Set(ACTIVE_QS.map(q=>q.cat))];
   const catRpt=document.getElementById("catrpt");catRpt.innerHTML="";
   cats.forEach(cat=>{
     const subAs=answers.filter(a=>a.cat===cat);
@@ -429,7 +503,7 @@ async function showResult(){
   wd.innerHTML=wrongAll.length?wrongAll.map(a=>'<div class="di"><div class="di-tags"><span class="di-tag" style="background:'+a.uc.bg+';color:'+a.uc.c+'">第'+a.id+"題｜"+a.cat+"</span></div><div class=\"di-q\">"+a.text+"</div><div class=\"di-ans\"><span style=\"background:#fdeaea;color:#c82828;padding:2px 9px;border-radius:20px;font-size:12.5px;font-weight:700\">✗ "+a.chosen+"</span><span style=\"color:#8a96a6\">→</span><span style=\"background:#e7f6ef;color:#178a56;padding:2px 9px;border-radius:20px;font-size:12.5px;font-weight:700\">✓ "+a.right+"</span></div><div class=\"di-exp\">📝 "+a.exp+"</div></div>").join(""):"<div style=\"text-align:center;padding:18px;color:#178a56;font-weight:900;font-size:16px\">🎉 全部答對！數學滿分！</div>";
 
   const catScores={};cats.forEach(c=>{catScores[c]=answers.filter(a=>a.cat===c&&a.correct).length;});
-  const record={cls:stu.cls,seat:parseInt(stu.seat),timestamp:useFirebase?firebase.firestore.FieldValue.serverTimestamp():null,localTime:stu.time,score,correct:corr,totalQ:TOTAL_Q,catScores,wrongSubs:wrongAll.map(a=>{return{sub:a.cat,unit:a.cat}})};
+  const record={cls:stu.cls,seat:parseInt(stu.seat),timestamp:useFirebase?firebase.firestore.FieldValue.serverTimestamp():null,localTime:stu.time,score,correct:corr,totalQ:TOTAL_Q,catScores,shuffleQ:stu.shuffleQ||false,shuffleO:stu.shuffleO||false,wrongSubs:wrongAll.map(a=>{return{sub:a.cat,unit:a.cat}})};
   const statusEl=document.getElementById("upload-status");
   if(useFirebase){
     try{await db.collection(COLLECTION).add(record);statusEl.textContent="✅ 作答記錄已成功上傳雲端！老師可在教師看板查閱。";statusEl.className="fb-status ok";statusEl.style.display="block";}
