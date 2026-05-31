@@ -161,11 +161,17 @@ label.fl{display:block;font-size:12.5px;font-weight:700;color:var(--texts);margi
         <div><label class="fl">班級</label>
           <select class="inp" id="icls" style="appearance:none">
             <option value="">請選擇班級</option>
-            <option>五年一班</option><option>五年二班</option><option>五年三班</option>
-            <option>五年四班</option><option>五年五班</option><option>五年六班</option>
-            <option>六年一班</option><option>六年二班</option><option>六年三班</option>
-            <option>六年四班</option><option>六年五班</option><option>六年六班</option>
-          </select></div>
+            <option>601</option>
+<option>602</option>
+<option>603</option>
+<option>604</option>
+<option>605</option>
+<option>606</option>
+<option>607</option>
+<option>608</option>
+<option>609</option>
+<option>610</option>
+            </select></div>
         <div><label class="fl">座號</label>
           <input class="inp" id="iseat" type="number" placeholder="座號" min="1" max="40"></div>
       </div>
@@ -244,10 +250,17 @@ label.fl{display:block;font-size:12.5px;font-weight:700;color:var(--texts);margi
     <div class="tc"><h3>🔍 篩選條件</h3>
       <div class="tc-filter">
         <select id="t-cls-filter"><option value="">所有班級</option>
-          <option>五年一班</option><option>五年二班</option><option>五年三班</option>
-          <option>五年四班</option><option>五年五班</option><option>五年六班</option>
-          <option>六年一班</option><option>六年二班</option><option>六年三班</option>
-          <option>六年四班</option><option>六年五班</option><option>六年六班</option></select>
+          <option>601</option>
+<option>602</option>
+<option>603</option>
+<option>604</option>
+<option>605</option>
+<option>606</option>
+<option>607</option>
+<option>608</option>
+<option>609</option>
+<option>610</option>
+          </select>
         <button onclick="loadTeacherData()">🔄 載入資料</button>
         <span id="t-loading" style="display:none;font-size:13px;color:var(--texth)"><span class="spin"></span>載入中...</span>
       </div>
@@ -451,7 +464,7 @@ function renderTeacher(recs,cls){
     const avg=(recs.reduce((s,r)=>s+r.score,0)/recs.length).toFixed(1),hi=recs.filter(r=>r.score>=80).length;
     tl.innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:12px"><div style="background:#f4f6f9;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#1d4ed8">'+recs.length+'</div><div style="font-size:10.5px;color:#8a96a6">作答人數</div></div><div style="background:#f4f6f9;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#1d4ed8">'+avg+'</div><div style="font-size:10.5px;color:#8a96a6">平均分數</div></div><div style="background:#f4f6f9;border-radius:8px;padding:10px;text-align:center"><div style="font-size:20px;font-weight:900;color:#178a56">'+hi+'</div><div style="font-size:10.5px;color:#8a96a6">80分以上</div></div></div>'+
     recs.map(r=>{const c=r.score>=80?"#178a56":r.score>=60?"#b87010":"#c82828",bg=r.score>=80?"#e7f6ef":r.score>=60?"#fdf3e0":"#fdeaea",t=r.localTime||(r.timestamp&&r.timestamp.toDate?r.timestamp.toDate().toLocaleString("zh-TW"):"");
-    return '<div class="sr-row"><div class="av">'+r.cls.replace("年","y").replace("班","")+'</div><div class="sinfo"><div class="nm">'+r.cls+" "+r.seat+"號</div><div class=\"mt\">"+t+"　得分："+r.score+"/100</div></div><div class=\"sbadge\" style=\"color:"+c+";background:"+bg+'">'+r.score+"分</div></div>";}).join("")+(!useFirebase?'<button class="btn-clr" onclick="clearRecs()">清除本機記錄</button>':"");
+    return '<div class="sr-row"><div class="av">'+r.cls+'</div><div class="sinfo"><div class="nm">'+r.cls+" "+r.seat+"號</div><div class=\"mt\">"+t+"　得分："+r.score+"/100</div></div><div class=\"sbadge\" style=\"color:"+c+";background:"+bg+'">'+r.score+"分</div></div>";}).join("")+(!useFirebase?'<button class="btn-clr" onclick="clearRecs()">清除本機記錄</button>':"");
   }
 
   const cats=[...new Set(QS.map(q=>q.cat))];
