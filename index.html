@@ -455,7 +455,7 @@ function loadQ(idx){
 
 function pick(idx){
   if(answered)return;answered=true;
-  const q=QS[curQ],ok=idx===q.ans;
+  const q=ACTIVE_QS[curQ],ok=idx===q.ans;
   answers.push({id:q.id,cat:q.cat,uc:q.uc,text:q.text,correct:ok,chosenIdx:idx,rightIdx:q.ans,chosen:q.ch[idx],right:q.ch[q.ans],exp:q.exp});
   document.querySelectorAll(".ch").forEach((b,i)=>{
     if(i===q.ans)b.classList.add("correct");
